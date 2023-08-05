@@ -1,0 +1,30 @@
+name: Upload File
+
+on:
+  push:
+    branches:
+      - main  # Adjust this branch name to match your default branch
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Upload File
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      run: |
+        file_path="C:/Users/dosta/DSN Hackathon Project/submission.csv"
+        branch_name="main"
+        commit_message="Upload a new file"
+
+        url="https://api.github.com/repos/Dostados/Dostados/contents/${file_path//\\/\/}"
+        headers="Accept: application/vnd.github.v3+json"
+
+        file_content="$(base64 ${file_path})"
+        data="{\"message\": \"${commit_message}\", \"content\": \"${file_content}\", \"branch\": \"${branch_name}\"}"
+
+        curl -X PUT -H "${headers}" -H "Authorization: token ${GITHUB_TOKEN}" -d "${data}" ${url}
